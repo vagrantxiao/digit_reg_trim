@@ -4265,7 +4265,7 @@ LabelType knn_vote( int knn_set[PAR_FACTOR * K_CONST] )
 // top-level hardware function
 // since AXIDMA_SIMPLE interface does not support arrays with size more than 16384 on interface
 // we call this function twice to transfer data
-void DigitRec_mono(hls::stream<ap_uint<128> > & Input_1, hls::stream<ap_uint<128> > & Output_1)
+void DigitRec_mono(hls::stream<ap_uint<32> > & Input_1, hls::stream<ap_uint<32> > & Output_1)
 {
 #pragma HLS INTERFACE ap_hs port=Input_1
 #pragma HLS INTERFACE ap_hs port=Output_1
@@ -4288,14 +4288,26 @@ void DigitRec_mono(hls::stream<ap_uint<128> > & Input_1, hls::stream<ap_uint<128
     // copy the training set for the first time
     for (int i = 0; i < NUM_TRAINING; i ++ ){
       #pragma HLS pipeline
-    	training_set[i].range(255, 128) =Input_1.read();
-    	training_set[i].range(127, 0) =Input_1.read();
+    	training_set[i].range(255, 224) =Input_1.read();
+    	training_set[i].range(223, 192) =Input_1.read();
+    	training_set[i].range(191, 160) =Input_1.read();
+    	training_set[i].range(159, 128) =Input_1.read();
+    	training_set[i].range(127, 96) =Input_1.read();
+    	training_set[i].range(95, 64) =Input_1.read();
+    	training_set[i].range(63, 32) =Input_1.read();
+    	training_set[i].range(31, 0) =Input_1.read();
     }
 
   for (int i = 0; i < NUM_TEST; i ++ ){
     #pragma HLS pipeline
-	  test_set[i].range(255, 128) =Input_1.read();
-	  test_set[i].range(127, 0) =Input_1.read();
+	  test_set[i].range(255, 224) =Input_1.read();
+	  test_set[i].range(223, 192) =Input_1.read();
+	  test_set[i].range(191, 160) =Input_1.read();
+	  test_set[i].range(159, 128) =Input_1.read();
+	  test_set[i].range(127, 96) =Input_1.read();
+	  test_set[i].range(95, 64) =Input_1.read();
+	  test_set[i].range(63, 32) =Input_1.read();
+	  test_set[i].range(31, 0) =Input_1.read();
   }
 
   // loop through test set
@@ -4337,9 +4349,9 @@ void DigitRec_mono(hls::stream<ap_uint<128> > & Input_1, hls::stream<ap_uint<128
   Output_1.write(2001);
   for (int i = 0; i < NUM_TEST; i ++ )
   {
-	bit128 out_tmp = 0;
+	bit32 out_tmp = 0;
 	out_tmp(7,0)=results[i];
-	out_tmp(127,8) = 0;
+	out_tmp(31,8) = 0;
     #pragma HLS pipeline
     Output_1.write(out_tmp);
   }

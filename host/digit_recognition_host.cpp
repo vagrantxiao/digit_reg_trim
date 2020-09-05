@@ -222,7 +222,7 @@ int main(int argc, char ** argv)
     // second call: execute
     gettimeofday(&start, NULL);
     //DigitRec(training_in1, test_in, result, 1);
-    DigitRec2(Input_1, Output_1);
+    DigitRec_mono(Input_1, Output_1);
     gettimeofday(&end, NULL);
   #endif
 
