@@ -11,12 +11,12 @@
 #include <hls_stream.h>
 
 // popcount function
-int popcount(WholeDigitType x)
+int popcount(WholeDigitType_196 x)
 {
   // most straightforward implementation
   // actually not bad on FPGA
   int cnt = 0;
-  for (int i = 0; i < 256; i ++ )
+  for (int i = 0; i < 196; i ++ )
   {
 #pragma HLS unroll
     cnt = cnt + x[i];
@@ -4118,14 +4118,14 @@ void DigitRec(hls::stream<ap_uint<128> > & Input_1, hls::stream<ap_uint<128> > &
 // Given the test instance and a (new) training instance, this
 // function maintains/updates an array of K minimum
 // distances per training set.
-void update_knn( WholeDigitType test_inst, WholeDigitType train_inst, int min_distances[K_CONST] )
+void update_knn( WholeDigitType_196 test_inst, WholeDigitType_196 train_inst, int min_distances[K_CONST] )
 {
   #pragma HLS inline
 #pragma HLS array_partition variable=min_distances complete dim=0
 
 
   // Compute the difference using XOR
-  WholeDigitType diff = test_inst ^ train_inst;
+  WholeDigitType_196 diff = test_inst ^ train_inst;
 
   int dist = 0;
 
