@@ -4273,12 +4273,12 @@ void DigitRec_mono(hls::stream<ap_uint<32> > & Input_1, hls::stream<ap_uint<32> 
   int knn_set[PAR_FACTOR * K_CONST];
   #pragma HLS array_partition variable=knn_set complete dim=0
 
-  static WholeDigitType training_set [NUM_TRAINING];
+  static WholeDigitType_196 training_set [NUM_TRAINING];
   // to be used in a pragma
   const int unroll_factor = PAR_FACTOR;
   #pragma HLS array_partition variable=training_set block factor=unroll_factor dim=0
 
-  static WholeDigitType test_set     [NUM_TEST];
+  static WholeDigitType_196 test_set     [NUM_TEST];
   static LabelType results           [NUM_TEST];
 
   ap_uint<32> run = 0;
@@ -4288,8 +4288,10 @@ void DigitRec_mono(hls::stream<ap_uint<32> > & Input_1, hls::stream<ap_uint<32> 
     // copy the training set for the first time
     for (int i = 0; i < NUM_TRAINING; i ++ ){
       #pragma HLS pipeline
-    	training_set[i].range(255, 224) =Input_1.read();
-    	training_set[i].range(223, 192) =Input_1.read();
+    	bit32 in_tmp;
+    	in_tmp = Input_1.read();
+    	in_tmp = Input_1.read();
+    	training_set[i].range(195, 192) =in_tmp(3, 0);
     	training_set[i].range(191, 160) =Input_1.read();
     	training_set[i].range(159, 128) =Input_1.read();
     	training_set[i].range(127, 96) =Input_1.read();
@@ -4300,8 +4302,10 @@ void DigitRec_mono(hls::stream<ap_uint<32> > & Input_1, hls::stream<ap_uint<32> 
 
   for (int i = 0; i < NUM_TEST; i ++ ){
     #pragma HLS pipeline
-	  test_set[i].range(255, 224) =Input_1.read();
-	  test_set[i].range(223, 192) =Input_1.read();
+	  bit32 in_tmp;
+	  in_tmp = Input_1.read();
+	  in_tmp = Input_1.read();
+	  test_set[i].range(195, 192) =in_tmp(3, 0);
 	  test_set[i].range(191, 160) =Input_1.read();
 	  test_set[i].range(159, 128) =Input_1.read();
 	  test_set[i].range(127, 96) =Input_1.read();
@@ -4314,8 +4318,9 @@ void DigitRec_mono(hls::stream<ap_uint<32> > & Input_1, hls::stream<ap_uint<32> 
   TEST_LOOP: for (int t = 0; t < NUM_TEST; ++t)
   {
     // fetch one instance
-    WholeDigitType test_instance = test_set[t];
-
+    WholeDigitType test_instance;
+    test_instance(195, 0) = test_set[t];
+    test_instance(255, 196) = 0;
     // Initialize the knn set
     SET_KNN_SET: for ( int i = 0; i < K_CONST * PAR_FACTOR ; ++i )
     {
@@ -4331,8 +4336,9 @@ void DigitRec_mono(hls::stream<ap_uint<32> > & Input_1, hls::stream<ap_uint<32> 
       {
         #pragma HLS unroll
         // Read a new instance from the training set
-        WholeDigitType training_instance = training_set[j * NUM_TRAINING / PAR_FACTOR + i];
-
+        WholeDigitType training_instance;
+        training_instance(195, 0) = training_set[j * NUM_TRAINING / PAR_FACTOR + i];
+        training_instance(255, 196) = 0;
         // Update the KNN set
         update_knn( test_instance, training_instance, &knn_set[j * K_CONST] );
       }
@@ -4416,20 +4422,7 @@ void knn_vote_small1( int knn_set[2 * K_CONST],
           label_list[r-1] = label_in;
         }
       }
-      printf("min_distance_list[%d]=%d, min_distance_list[%d]=%d, min_distance_list[%d]=%d\n",
-    		  0,
-    		  min_distance_list[0],
-			  1,
-			  min_distance_list[1],
-			  2,
-			  min_distance_list[2]);
-      printf("label_list[%d]=%d, label_list[%d]=%d, label_list[%d]=%d\n",
-    		  0,
-			  label_list[0],
-			  1,
-			  label_list[1],
-			  2,
-			  label_list[2]);
+
 
     }
   }
@@ -7641,7 +7634,7 @@ void DigitRec2(hls::stream<ap_uint<32> > & Input_1, hls::stream<ap_uint<32> > & 
 		update_knn20(knn_out19, Output_1);
 	}
 
-	printf("We can run without hanging\n");
+	//printf("We can run without hanging\n");
 
 }
 
